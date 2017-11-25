@@ -18,12 +18,18 @@ function _init()
  -- magic number do center the circle
  diff = 3
 
+  north = 0
+  south = 1
+  east = 2
+  west = 3
+
   -- player
   player = {
     x = 64,
     y = 64,
     sprite = resting_sprite,
     speed = 2,
+    orientation = north,
     moving = false
   }
 
@@ -45,21 +51,25 @@ function _update()
  t += 1
  player.moving = false
 
- if btn(0) and player.x > 0 then
+ if btn(0) and cmap() then -- left
  	player.x -= player.speed
+  player.orientation = west
   move()
  end
- if btn(1) and player.x < 127 then
+ if btn(1) and cmap() then -- right
  	player.x += player.speed
   move()
+  player.orientation = east
  end
- if btn(2) and player.y > 0 then
+ if btn(2) and cmap() then -- up
  	player.y -= player.speed
   move()
+  player.orientation = north
  end
- if btn(3) and player.y < 127 then
+ if btn(3) and cmap() then -- down
  	player.y += player.speed
   move()
+  player.orientation = south
  end
 	
 	if not player.moving then
@@ -83,6 +93,7 @@ end
 function _draw()
  cls()
 
+ -- blackens everything around him
  reduce_vision()
 
  -- draws map
@@ -96,6 +107,21 @@ function _draw()
 
 end
 
+function cmap()  
+  -- these calculations need to divide the coordinates because 1 map tile equals 8 screen tales.
+  -- for example, a map tile at (1,2) drawing will most likelly place it at (8, 16)
+  local x1=player.x/8
+  local y1=player.y/8
+  local x2=(player.x+7)/8
+  local y2=(player.y+7)/8
+
+  local a=fget(mget(x1,y1),0)
+  local b=fget(mget(x1,y2),0)
+  local c=fget(mget(x2,y2),0)
+  local d=fget(mget(x2,y1),0)
+
+  return true
+end
 
 
 
