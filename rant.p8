@@ -6,8 +6,15 @@ music(0)
 
 function _init()
   t = 0
-  -- resting sprite of the character
-  resting_sprite = 3
+  -- position of base of the character
+  body_sprite = 0
+  body_up_sprite = 2
+
+  -- position of leg sprite
+  legs_sprite = 4
+  legs_up_sprite = 20
+  legs_pos_x = 6
+  legs_pos_y = 11
 
   -- range of vision
   range = 20
@@ -22,7 +29,9 @@ function _init()
   player = {
     x = 64,
     y = 64,
-    sprite = resting_sprite,
+    body = body_sprite,
+    legs = legs_sprite,
+    direction = 0,
     speed = 2,
     moving = false
   }
@@ -32,33 +41,61 @@ function _init()
   palt(0, false) 
 end
 
+function draw_player()
+
+  -- invert flag used for sprite drawing
+  invert_x = false
+
+  if direction == 0 then
+    invert_x = false
+  end
+  if direction == 1 then
+    invert_x = false
+  end
+  if direction == 2 then
+    invert_x = true
+  end
+  if direction == 3 then
+    invert_x = false
+  end
+
+  spr(player.body, player.x, player.y, 2, 2, invert_x, false);
+  spr(player.legs, player.x + legs_pos_x, player.y + legs_pos_y, 1, 1, invert_x, false);
+  
+end
+
 function move()
-	player.moving = true
-	player.sprite += 1
+	-- player.moving = true
+	-- player.sprite += 1
 	
-	if player.sprite > resting_sprite + 2 then
-		player.sprite = resting_sprite
-	end
+	-- if player.sprite > resting_sprite + 2 then
+	-- 	player.sprite = resting_sprite
+	-- end
 end
 
 function _update()
  t += 1
  player.moving = false
 
+  
  if btn(0) and player.x > 0 then
  	player.x -= player.speed
+  direction = 0
   move()
  end
  if btn(1) and player.x < 127 then
  	player.x += player.speed
+  direction = 2
   move()
  end
  if btn(2) and player.y > 0 then
  	player.y -= player.speed
+  direction = 1
   move()
  end
  if btn(3) and player.y < 127 then
  	player.y += player.speed
+   direction = 3
   move()
  end
 	
@@ -88,8 +125,7 @@ function _draw()
  -- draws map
  mapdraw(0, 0, 0, 0, 300, 300)
 
- -- draws player
- spr(player.sprite, player.x, player.y)  
+ draw_player()
  
  -- gives round edges to visibale rectangle
  draw_circle()
