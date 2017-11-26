@@ -25,10 +25,10 @@ function _init()
   -- magic number to center the circle
   diff = 3
 
-  up = 0
-  down = 1
-  right = 2
-  left = 3
+  up = 2
+  down = 3
+  right = 1
+  left = 0
 
   -- player
   player = {
@@ -71,6 +71,33 @@ function draw_player()
 end
 
 function move()
+  local x_init = player.x
+  local y_init = player.y
+
+  if btn(left) then -- left
+    player.x -= player.speed
+    player.direction = left
+  end
+  if btn(right) then -- right
+    player.x += player.speed
+    player.direction = right
+  end
+  if btn(up) then -- up
+    player.y -= player.speed
+    player.direction = up
+  end
+  if btn(down) then -- down
+    player.y += player.speed
+    player.direction = down
+  end
+
+  -- if player collides with sprites with the 
+  -- 0 flag then he doesn't move
+  if cmap(player) then
+    player.x = x_init	
+    player.y = y_init
+  end
+
 	-- player.moving = true
 	-- player.sprite += 1
 	
@@ -82,31 +109,7 @@ end
 function _update()
  t += 1
  player.moving = false
-
- if btn(left) and cmap() then -- left
- 	player.x -= player.speed
-  player.direction = left
-  move()
- end
- if btn(right) and cmap() then -- right
- 	player.x += player.speed
-  player.direction = right
-  move()
- end
- if btn(up) and cmap() then -- up
- 	player.y -= player.speed
-  player.direction = up
-  move()
- end
- if btn(down) and cmap() then -- down
- 	player.y += player.speed
-  player.direction = down
-  move()
- end
-	
-	if not player.moving then
-		player.sprite = resting_sprite
-	end
+ move()
 end
 
 function reduce_vision()
@@ -138,20 +141,20 @@ function _draw()
 
 end
 
-function cmap()  
+function cmap(object)  
   -- these calculations need to divide the coordinates because 1 map tile equals 8 screen tales.
   -- for example, a map tile at (1,2) drawing will most likelly place it at (8, 16)
-  local x1=player.x/8
-  local y1=player.y/8
-  local x2=(player.x+7)/8
-  local y2=(player.y+7)/8
+  local x1=object.x/8
+  local y1=object.y/8
+  local x2=(object.x+7)/8
+  local y2=(object.y+7)/8
 
   local a=fget(mget(x1,y1),0)
   local b=fget(mget(x1,y2),0)
   local c=fget(mget(x2,y2),0)
   local d=fget(mget(x2,y1),0)
 
-  return true
+  return a or b or c or d
 end
 
 
@@ -296,7 +299,7 @@ bb9444bbcccccccc9566665970707070b777777bbb99bbbb8868868bc111111cbbbbbbbbbbbbbbbb
 bb9999bbbbbbbbbb9999999977777777b000777bbbb9bbbb8688886bccccccccbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
 
 __gff__
-0000000000000000000000000000000000000000000000000000000800080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000010800080000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0707070707070707070707070707070707070707070707070707070707070707070707070707070700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
