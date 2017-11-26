@@ -4,6 +4,21 @@ __lua__
 
 music(0)
 
+rigid = 0
+door = 7
+
+connection = {}
+connection[0] = {room = 0, door_x = 80, door_y = 24, room_con = 1, player_x = 0, player_y = 0}
+connection[1] = {room = 1, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
+connection[2] = {room = 0, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
+connection[3] = {room = 0, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
+
+room = {}
+room[0] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 12, size_y = 8}
+room[1] = {map_x = 15, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 9, size_y = 8}
+room[2] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 0, size_y = 0}
+room[3] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 0, size_y = 0}
+
 function _init()
   t = 0
   -- position of base of the character
@@ -42,7 +57,8 @@ function _init()
     direction = up,
     speed = 1,
     healt = 100,
-    moving = false
+    moving = false,
+    room = 0
   }
 
   -- filters green color and allows black
@@ -95,6 +111,19 @@ function draw_player()
   spr(player.legs, player.x + legs_pos_x, player.y + legs_pos_y, 1, 1, invert_x, false);
   
 end
+function change_room()
+  if collides(player, door) then
+    for con in all(connection) do
+      if player.room == con.room then
+        -- if player.x - con.door_x > -4 and player.x - con.door_x < 4 and player.y - con.door_y > -4 and player.y - con.door_y > 4 then
+          player.room = con.room_con
+          player.x = con.player_x
+          player.y = con.player_y
+        -- end
+      end
+    end
+  end
+end
 
 function move()
   local x_init = player.x
@@ -123,11 +152,12 @@ function move()
 
   -- if player collides with sprites with the 
   -- 0 flag then he doesn't move
-  if collides(player) then
+  if collides(player, rigid) then
     player.x = x_init	
     player.y = y_init
   end
 
+  change_room()
 	-- player.sprite += 1
 	
 	-- if player.sprite > resting_sprite + 2 then
@@ -161,7 +191,7 @@ function _draw()
  reduce_vision()
 
  -- draws map
- mapdraw(0, 0, 0, 0, 7, 12)
+ mapdraw(room[player.room].map_x,room[player.room].map_y, 0, 0, room[player.room].size_x, room[player.room].size_y)
 
  draw_player()
  
@@ -173,15 +203,15 @@ end
 function collides(object)  
   -- these calculations need to divide the coordinates because 1 map tile equals 8 screen tales.
   -- for example, a map tile at (1,2) drawing will most likelly place it at (8, 16)
-  local x1 = object.x / 8
-  local y1 = object.x / 8
-  local x2 = (object.y + 7) / 8 
-  local y2 = (object.y +  7) / 8
+  local x1 = (object.x + 8) / 8
+  local y1 = (object.y + 15) / 8
+  local x2 = (object.x + 8) / 8 
+  local y2 = (object.y + 24) / 8
 
-  local a = fget(mget(x1, y1), 0)
-  local b = fget(mget(x1, y2), 0)
-  local c = fget(mget(x2, y2), 0)
-  local d = fget(mget(x2, y1), 0)
+  local a = fget(mget(x1, y1), flag)
+  local b = fget(mget(x1, y2), flag)
+  local c = fget(mget(x2, y2), flag)
+  local d = fget(mget(x2, y1), flag)
 
   return a or b or c or d
 end
@@ -295,37 +325,37 @@ bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7887bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbb7787bbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbb7787bbbbbbbbbbbb7787bbbbbbbbbbbb7787bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb77b7bbbbbbbbbbbb7787bbbbbbbbbbbb77b7bbbbbbbbbbbb7787bbbbbbbbbbbb7787bbbbbbbbbbbb7787bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb77b7bbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb77b7bbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
-bb7777bbbbbbbbbb9999999911111111b777777bbb999bbb000bbbbbccccccccbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
-b676767bcc66cc009aaa600977777777b700007bbb9b9bbb888bbbbbc111111cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb77b7bbbbbbbbbbbbbbbbbb
-bb9999bbc6fffccc9ff66f0970707070b777777bbb999bbb8688886bc1cccc1cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
-bb9999bb6ffffc009ff66ff977777777b000007bbbb9bbbb8868868bc1c77c1cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
-bb9444bb6f7f7ccc9866633970707870b777777bbb99bbbb8886688bc1c77c1cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb777777bbbbbbbbbbbbbbbbb
-bb9444bbcffffc0098f6f35977777777b000000bbbb99bbb8886688bc1c7771cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb777777bbbbbbbbbbbbbbbbb
-bb9444bbcccccccc9566665970707070b777777bbb99bbbb8868868bc111111cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb777777bbbbbbbbbbbbbbbbb
-bb9999bbbbbbbbbb9999999977777777b000777bbbb9bbbb8688886bccccccccbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7787bbbbbbbbbbbb77b7bbbbbbbbbbbb77b7bbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7bb7bbbbbbbbbbbbbbbbbb
+bb7777bbbbbbbbbb9999999911111111b777777bbb999bbb000bbbbbccccccccbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbbbbbbbb
+b676767bcc66cc009aaa600977777777b700007bbb9b9bbb888bbbbbc111111cbbbbbbbbbb7787bbbbbbbbbbbb7787bbbbbbbbbbbb7787bbbbbbbbbbbbbbbbbb
+bb9999bbc6fffccc9ff66f0970707070b777777bbb999bbb8688886bc1cccc1cbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbb7887bbbbbbbbbbbbbbbbbb
+bb9999bb6ffffc009ff66ff977777777b000007bbbb9bbbb8868868bc1c77c1cbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
+bb9444bb6f7f7ccc9866633970707870b777777bbb99bbbb8886688bc1c77c1cbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbbbbbbbbb
+bb9444bbcffffc0098f6f35977777777b000000bbbb99bbb8886688bc1c7771cbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbbbbbbbbb
+bb9444bbcccccccc9566665970707070b777777bbb99bbbb8868868bc111111cbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbb777777bbbbbbbbbbbbbbbbb
+bb9999bbbbbbbbbb9999999977777777b000777bbbb9bbbb8688886bccccccccbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
 
 __gff__
 0000000000000000000000000000000000000000000000000000010800080000000000000000000000000100000000000000000000000000000000010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
