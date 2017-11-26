@@ -13,8 +13,10 @@ function _init()
   -- position of leg sprite
   legs_sprite = 4
   legs_up_sprite = 20
-  legs_pos_x = 6
-  legs_pos_y = 11
+
+  -- legs sprite on movement and speed
+  legs_mov = 0
+  legs_mov_speed = 0.3
 
   -- range of vision
   range = 20
@@ -38,7 +40,7 @@ function _init()
     body = body_sprite,
     legs = legs_sprite,
     direction = up,
-    speed = 2,
+    speed = 1,
     healt = 100,
     moving = false
   }
@@ -53,19 +55,42 @@ function draw_player()
   -- invert flag used for sprite drawing
   invert_x = false
 
+  -- fix position of leg sprite
+  legs_pos_x = 0
+  legs_pos_y = 11
+
+  -- keep track of movement in legs to add to sprites
+  if player.moving == false or legs_mov > 2.9 then
+    legs_mov = 0
+  end
+  legs_mov += legs_mov_speed
+
   if player.direction == right then
-    invert_x = false
+    invert_x = true
+    player.body = body_sprite
+    player.legs = legs_sprite + legs_mov
+    legs_pos_x = 2
   end
   if player.direction == left then
     invert_x = false
+    player.body = body_sprite
+    player.legs = legs_sprite + legs_mov
+    legs_pos_x = 6
   end
   if player.direction == up then
-    invert_x = true
+    invert_x = false
+    player.body = body_up_sprite
+    player.legs = legs_up_sprite + legs_mov
+    legs_pos_x = 5
   end
   if player.direction == down then
     invert_x = false
+    player.body = body_sprite
+    player.legs = legs_sprite + legs_mov
+    legs_pos_x = 6
   end
 
+  -- draw sprites
   spr(player.body, player.x, player.y, 2, 2, invert_x, false);
   spr(player.legs, player.x + legs_pos_x, player.y + legs_pos_y, 1, 1, invert_x, false);
   
@@ -78,18 +103,22 @@ function move()
   if btn(left) then -- left
     player.x -= player.speed
     player.direction = left
+    player.moving = true
   end
   if btn(right) then -- right
     player.x += player.speed
     player.direction = right
+   	player.moving = true 
   end
   if btn(up) then -- up
     player.y -= player.speed
     player.direction = up
+  	player.moving = true
   end
   if btn(down) then -- down
     player.y += player.speed
     player.direction = down
+  	player.moving = true
   end
 
   -- if player collides with sprites with the 
@@ -99,7 +128,6 @@ function move()
     player.y = y_init
   end
 
-	-- player.moving = true
 	-- player.sprite += 1
 	
 	-- if player.sprite > resting_sprite + 2 then
