@@ -4,21 +4,6 @@ __lua__
 
 music(0)
 
-rigid = 0
-door = 7
-
-connection = {}
-connection[0] = {room = 0, door_x = 80, door_y = 24, room_con = 1, player_x = 0, player_y = 0}
-connection[1] = {room = 1, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
-connection[2] = {room = 0, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
-connection[3] = {room = 0, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
-
-room = {}
-room[0] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 12, size_y = 8}
-room[1] = {map_x = 15, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 9, size_y = 8}
-room[2] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 0, size_y = 0}
-room[3] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 0, size_y = 0}
-
 function _init()
   t = 0
   -- position of base of the character
@@ -57,8 +42,7 @@ function _init()
     direction = up,
     speed = 1,
     healt = 100,
-    moving = false,
-    room = 0
+    moving = false
   }
 
   -- filters green color and allows black
@@ -112,20 +96,6 @@ function draw_player()
   
 end
 
-function change_room()
-  if collides(player, door) then
-    for con in all(connection) do
-      if player.room == con.room then
-        -- if player.x - con.door_x > -4 and player.x - con.door_x < 4 and player.y - con.door_y > -4 and player.y - con.door_y > 4 then
-          player.room = con.room_con
-          player.x = con.player_x
-          player.y = con.player_y
-        -- end
-      end
-    end
-  end
-end
-
 function move()
   local x_init = player.x
   local y_init = player.y
@@ -153,12 +123,10 @@ function move()
 
   -- if player collides with sprites with the 
   -- 0 flag then he doesn't move
-  if collides(player, rigid) then
+  if collides(player) then
     player.x = x_init	
     player.y = y_init
   end
-
-  change_room()
 
 	-- player.sprite += 1
 	
@@ -193,7 +161,7 @@ function _draw()
  reduce_vision()
 
  -- draws map
- mapdraw(room[player.room].map_x,room[player.room].map_y, 0, 0, room[player.room].size_x, room[player.room].size_y)
+ mapdraw(0, 0, 0, 0, 7, 12)
 
  draw_player()
  
@@ -202,18 +170,18 @@ function _draw()
 
 end
 
-function collides(object, flag)  
+function collides(object)  
   -- these calculations need to divide the coordinates because 1 map tile equals 8 screen tales.
   -- for example, a map tile at (1,2) drawing will most likelly place it at (8, 16)
-  local x1 = (object.x + 8) / 8
-  local y1 = (object.y + 15) / 8
-  local x2 = (object.x + 8) / 8 
-  local y2 = (object.y + 24) / 8
+  local x1 = object.x / 8
+  local y1 = object.x / 8
+  local x2 = (object.y + 7) / 8 
+  local y2 = (object.y +  7) / 8
 
-  local a = fget(mget(x1, y1), flag)
-  local b = fget(mget(x1, y2), flag)
-  local c = fget(mget(x2, y2), flag)
-  local d = fget(mget(x2, y1), flag)
+  local a = fget(mget(x1, y1), 0)
+  local b = fget(mget(x1, y2), 0)
+  local c = fget(mget(x2, y2), 0)
+  local d = fget(mget(x2, y1), 0)
 
   return a or b or c or d
 end
@@ -262,22 +230,22 @@ d66667d66666666666666666dddddddd6d1111d6c91111111111119cd66667db4444444444444444
 6d667d667777777766666666dddddddd66d11d66c99111111111199c6d667d6b44444444444444444444444405566550055665506d667d66bd667d666d667d6b
 66d7d666dddddddd666666666d6d6d6d666dd666c99999999999999c66d7d66b666666664444444444444444055665500556655066d7d666b6d7d66666d7d66b
 666d666655555555666666666666666666666666cccccccccccccccc666d666b5555555544444444444444440556655005566550bbbbbbbbb66d6666666d666b
-eeeeeeee22222222d5d000dd2222222222222222dddd4444bbbbbbbbbbbbbbbb666666664444dddd222d222d222d222d222d222dbbbbbbbbbbbbbbbbbbbbbbbb
-22222222eeeeeeeedd5555dd5eeeeeeeeeeeeee544444444bbbbbbbbbbbbbbbb6666666644444444d200000000000000000000d2bbbbbbbbbbbbbbbbbbbbbbbb
-eeeeeeee22222222d00550dd2e222222222222e200004444bbbbbbbbbbbbbbbb66666666444400002d4444444444444444444422bbbbbbbbbbbbbbbbbbbbbbbb
-22222222eeeeeeee055550555e2eeeeeeeeee2e54440444455555555555555556666666644440444224444444444444444444422bbbbbbbbbbbbbbbbbbbbbbbb
-eeeeeeee22222222555550dd2e2e22222222e2e244404444dd000000000000dd666666664444044422444444444444444444442dbbbbbbbbbbbbbbbbbbbbbbbb
-22222222eeeeeeee555550dd5e2e2eeeeee2e2e54440444400000000000000006666666644440444d244444444444444444444d2bbbbbbbbbbbbbbbbbbbbbbbb
-eeeeeeee22222222555550dd2e2e2e2222e2e2e2444044440000000000000000666666664444044400cc677777cccc677777cc00bbbbbbbbbbbbbbbbbbbbbbbb
-22222222eeeeeeee555555555e2e2e2ee2e2e2e5444044440044444444444400666666664444044455cc677776cccc677776cc55bbbbbbbbbbbbbbbbbbbbbbbb
-00000000000000004444444d2e2e2e2ee2e2e2e24440444400444444444444006666666644440444ddcc777666cccc777666ccddbbbbbbbbbbbbbbbbbbbbbbbb
-0000000000000000000000dd5e2e2e2222e2e2e54440444400444444444444006666666644440444d5ccccccccccccccccccccddbbbbbbbbbbbbbbbbbbbbbbbb
-4444444444444444444444dd2e2e2eeeeee2e2e24440000044444444444444446666666600000444ddccccccccccccccccccccddbbbbbbbbbbbbbbbbbbbbbbbb
-4404449994440444444444555e2e22222222e2e5444000004444444444444444666666660000044455ccc1cccc1111cccccccc55bbbbbbbbbbbbbbbbbbbbbbbb
-4400000000000444444444dd2e2eeeeeeeeee2e20000000044444444444444444444444400000000ddccccc11ccc11111ccccc5dbbbbbbbbbbbbbbbbbbbbbbbb
-4444444444444444444444dd5e222222222222e50000000044444444444444444000000400000000ddccccccccccccc1111cccddbbbbbbbbbbbbbbbbbbbbbbbb
-4440000000000444400004dd2eeeeeeeeeeeeee20000000044444444444444444dddddd400000000ddccccccccccccccc111115dbbbbbbbbbbbbbbbbbbbbbbbb
-4455555555555544455554555222222222222225455555549555555555555559455555544555555455cccccccccccccccccccc55bbbbbbbbbbbbbbbbbbbbbbbb
+eeeeeeee22222222d5d000dd2222222222222222dddd4444bbbbbbbbbbbbbbbb666666664444dddd222d222d222d222d222d222d0555555555555550bbbbbbbb
+22222222eeeeeeeedd5555dd5eeeeeeeeeeeeee544444444bbbbbbbbbbbbbbbb6666666644444444d200000000000000000000d20665566006655660bbbbbbbb
+eeeeeeee22222222d00550dd2e222222222222e200004444bbbbbbbbbbbbbbbb66666666444400002d44444444444444444444220656656006566560bbbbbbbb
+22222222eeeeeeee055550555e2eeeeeeeeee2e544404444555555555555555566666666444404442244444444444444444444220566665005666650bbbbbbbb
+eeeeeeee22222222555550dd2e2e22222222e2e244404444dd000000000000dd666666664444044422444444444444444444442d0566665005666650bbbbbbbb
+22222222eeeeeeee555550dd5e2e2eeeeee2e2e54440444400000000000000006666666644440444d244444444444444444444d20566665005666650bbbbbbbb
+eeeeeeee22222222555550dd2e2e2e2222e2e2e2444044440000000000000000666666664444044400cc677777cccc677777cc000566665005666650bbbbbbbb
+22222222eeeeeeee555555555e2e2e2ee2e2e2e5444044440044444444444400666666664444044455cc677776cccc677776cc550656656006566560bbbbbbbb
+00000000000000004444444d2e2e2e2ee2e2e2e24440444400444444444444006666666644440444ddcc777666cccc777666ccdd066556a00a655660bbbbbbbb
+0000000000000000000000dd5e2e2e2222e2e2e54440444400444444444444006666666644440444d5ccccccccccccccccccccdd0656656006566560bbbbbbbb
+4444444444444444444444dd2e2e2eeeeee2e2e24440000044444444444444446666666600000444ddccccccccccccccccccccdd0566665005666650bbbbbbbb
+4404449994440444444444555e2e22222222e2e5444000004444444444444444666666660000044455ccc1cccc1111cccccccc550566665005666650bbbbbbbb
+4400000000000444444444dd2e2eeeeeeeeee2e20000000044444444444444444444444400000000ddccccc11ccc11111ccccc5d0566665005666650bbbbbbbb
+4444444444444444444444dd5e222222222222e50000000044444444444444444000000400000000ddccccccccccccc1111cccdd0656656006566560bbbbbbbb
+4440000000000444400004dd2eeeeeeeeeeeeee20000000044444444444444444dddddd400000000ddccccccccccccccc111115d0665566006655660bbbbbbbb
+4455555555555544455554555222222222222225455555549555555555555559455555544555555455cccccccccccccccccccc550555555555555550bbbbbbbb
 0000000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbddccccccccccccccccccccddbbbbbbbbbbbbbbbbbbbbbbbb
 0000000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbd5ccccccccccccccccccccddbbbbbbbbbbbbbbbbbbbbbbbb
 0000000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbddccccccccccccccccccccddbbbbbbbbbbbbbbbbbbbbbbbb
@@ -298,21 +266,21 @@ bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba0c0b0bb7070707070707070707070707070bbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbb70707070707070bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbba3a3a3a3a3a3a3a3a3a3a3a3a3bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb7070707070a3a3a3a3a3a3a3a3a0c0b0a3a3a3a3bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbb9393c3939393939393c3939393a0c0b0bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb707070707093c39393c3939393a0c0b093d4e493bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbb8383b3838383838383b3838383a0c0b0bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb707070707083b38383b3838383a0c0b083d5e583bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbb02020202020202020202020202020202bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb7070707070020202020202020202020202020202bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbb02020202020202020202020202020202bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb7070707070020202020202020202020202020202bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbb02020202020202020202020202020202bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb7070707070020202020202020202020202020202bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbb02020202020202020202020202020202bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb7070707070707070707070707070707070707070bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb7070bbbbbb70bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
