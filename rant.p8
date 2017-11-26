@@ -161,7 +161,7 @@ function _draw()
  reduce_vision()
 
  -- draws map
- mapdraw(0, 0, 0, 0, 7, 12)
+ mapdraw(0, 0, 0, 0, 127, 127)
 
  draw_player()
  
@@ -173,10 +173,10 @@ end
 function collides(object)  
   -- these calculations need to divide the coordinates because 1 map tile equals 8 screen tales.
   -- for example, a map tile at (1,2) drawing will most likelly place it at (8, 16)
-  local x1 = object.x / 8
-  local y1 = object.x / 8
-  local x2 = (object.y + 7) / 8 
-  local y2 = (object.y +  7) / 8
+  local x1 = (object.x + 8) / 8
+  local y1 = (object.y + 15) / 8
+  local x2 = (object.x + 8) / 8 
+  local y2 = (object.y + 24) / 8
 
   local a = fget(mget(x1, y1), 0)
   local b = fget(mget(x1, y2), 0)
