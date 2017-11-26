@@ -4,6 +4,21 @@ __lua__
 
 music(0)
 
+rigid = 0
+door = 7
+
+connection = {}
+connection[0] = {room = 0, door_x = 80, door_y = 24, room_con = 1, player_x = 0, player_y = 0}
+connection[1] = {room = 1, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
+connection[2] = {room = 0, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
+connection[3] = {room = 0, door_x = 0, door_y = 0, room_con = 0, player_x = 0, player_y = 0}
+
+room = {}
+room[0] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 12, size_y = 8}
+room[1] = {map_x = 15, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 9, size_y = 8}
+room[2] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 0, size_y = 0}
+room[3] = {map_x = 0, map_y = 0, draw_x = 0, draw_y = 0 , size_x = 0, size_y = 0}
+
 function _init()
   t = 0
   -- position of base of the character
@@ -42,7 +57,8 @@ function _init()
     direction = up,
     speed = 1,
     healt = 100,
-    moving = false
+    moving = false,
+    room = 0
   }
 
   -- filters green color and allows black
@@ -96,6 +112,20 @@ function draw_player()
   
 end
 
+function change_room()
+  if collides(player, door) then
+    for con in all(connection) do
+      if player.room == con.room then
+        -- if player.x - con.door_x > -4 and player.x - con.door_x < 4 and player.y - con.door_y > -4 and player.y - con.door_y > 4 then
+          player.room = con.room_con
+          player.x = con.player_x
+          player.y = con.player_y
+        -- end
+      end
+    end
+  end
+end
+
 function move()
   local x_init = player.x
   local y_init = player.y
@@ -123,10 +153,12 @@ function move()
 
   -- if player collides with sprites with the 
   -- 0 flag then he doesn't move
-  if collides(player) then
+  if collides(player, rigid) then
     player.x = x_init	
     player.y = y_init
   end
+
+  change_room()
 
 	-- player.sprite += 1
 	
@@ -161,7 +193,7 @@ function _draw()
  reduce_vision()
 
  -- draws map
- mapdraw(0, 0, 0, 0, 7, 12)
+ mapdraw(room[player.room].map_x,room[player.room].map_y, 0, 0, room[player.room].size_x, room[player.room].size_y)
 
  draw_player()
  
@@ -170,7 +202,7 @@ function _draw()
 
 end
 
-function collides(object)  
+function collides(object, flag)  
   -- these calculations need to divide the coordinates because 1 map tile equals 8 screen tales.
   -- for example, a map tile at (1,2) drawing will most likelly place it at (8, 16)
   local x1 = object.x / 8
@@ -178,10 +210,10 @@ function collides(object)
   local x2 = (object.y + 7) / 8 
   local y2 = (object.y +  7) / 8
 
-  local a = fget(mget(x1, y1), 0)
-  local b = fget(mget(x1, y2), 0)
-  local c = fget(mget(x2, y2), 0)
-  local d = fget(mget(x2, y1), 0)
+  local a = fget(mget(x1, y1), flag)
+  local b = fget(mget(x1, y2), flag)
+  local c = fget(mget(x2, y2), flag)
+  local d = fget(mget(x2, y1), flag)
 
   return a or b or c or d
 end
@@ -328,7 +360,7 @@ bb9444bbcccccccc9566665970707070b777777bbb99bbbb8868868bc111111cbbbbbbbbbbbbbbbb
 bb9999bbbbbbbbbb9999999977777777b000777bbbb9bbbb8688886bccccccccbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb7777bbbbbbbbbbbbbbbbbb
 
 __gff__
-0000000000000000000000000000000000000000000000000000010800080000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000810800080000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 26262626262626262626262626070d2626262626262626260707070707070707070707070707070700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
