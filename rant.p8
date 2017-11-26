@@ -127,12 +127,12 @@ function change_room()
   if collides(player, door) then
     for con in all(connection) do
       if player.room == con.room then
-        if(hitboxcollision(player.x, player.y, con.door_x, con.door_y)) then
+        --if(hitboxcollision(player.x, player.y, con.door_x, con.door_y)) then
           player.room = con.room_con
           player.x = con.player_x
           player.y = con.player_y
           break
-        end
+        --end
       end
     end
   end
@@ -217,7 +217,7 @@ function _draw()
 
 end
 
-function collides(object)  
+function collides(object, flag)  
   -- these calculations need to divide the coordinates because 1 map tile equals 8 screen tales.
   -- for example, a map tile at (1,2) drawing will most likelly place it at (8, 16)
   local x1 = (object.x + 8) / 8
